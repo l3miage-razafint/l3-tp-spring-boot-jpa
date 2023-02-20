@@ -4,11 +4,21 @@ import fr.uga.l3miage.data.domain.Author;
 import fr.uga.l3miage.library.books.BookDTO;
 import fr.uga.l3miage.library.books.BooksMapper;
 import fr.uga.l3miage.library.service.AuthorService;
+import fr.uga.l3miage.library.service.EntityNotFoundException;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -41,21 +51,30 @@ public class AuthorsController {
                 .toList();
     }
 
-    public AuthorDTO author(Long id) {
-        return null;
+    @GetMapping("/authors/{id}")
+    public AuthorDTO author(@PathVariable("id") Long id) {
+        try {
+            return authorMapper.entityToDTO(authorService.get(id));
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, null, e);
+        }
     }
 
-    public AuthorDTO newAuthor(AuthorDTO author) {
-        return null;
+    @PostMapping(value = "/authors", consumes = MediaType.APPLICATION_JSON_VALUE)
+    // @ResponseStatus(HttpStatus.CREATED)
+    public AuthorDTO newAuthor(@RequestBody @Valid AuthorDTO author) {
+        return authorMapper.entityToDTO(authorService.save(authorMapper.dtoToEntity(author)));
     }
 
     public AuthorDTO updateAuthor(AuthorDTO author, Long id) {
-        // attention AuthorDTO.id() doit être égale à id, sinon la requête utilisateur est mauvaise
+        // attention AuthorDTO.id() doit être égale à id, sinon la requête utilisateur
+        // est mauvaise
         return null;
     }
 
     public void deleteAuthor(Long id) {
         // unimplemented... yet!
+
     }
 
     public Collection<BookDTO> books(Long authorId) {
