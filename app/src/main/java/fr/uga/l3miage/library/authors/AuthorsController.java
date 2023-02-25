@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -60,12 +61,13 @@ public class AuthorsController {
         }
     }
 
-    @PostMapping(value = "/authors", consumes = MediaType.APPLICATION_JSON_VALUE)
-    // @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/authors")
+    @ResponseStatus(HttpStatus.CREATED)
     public AuthorDTO newAuthor(@RequestBody @Valid AuthorDTO author) {
         return authorMapper.entityToDTO(authorService.save(authorMapper.dtoToEntity(author)));
     }
 
+    @PutMapping("/authors/{id}")
     public AuthorDTO updateAuthor(AuthorDTO author, Long id) {
         // attention AuthorDTO.id() doit être égale à id, sinon la requête utilisateur
         // est mauvaise
