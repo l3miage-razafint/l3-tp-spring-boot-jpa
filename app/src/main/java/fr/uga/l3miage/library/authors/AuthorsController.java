@@ -68,10 +68,15 @@ public class AuthorsController {
     }
 
     @PutMapping("/authors/{id}")
-    public AuthorDTO updateAuthor(AuthorDTO author, Long id) {
-        // attention AuthorDTO.id() doit être égale à id, sinon la requête utilisateur
-        // est mauvaise
-        return null;
+    public AuthorDTO updateAuthor(@RequestBody AuthorDTO author, @PathVariable("id") Long id) {
+        // attention AuthorDTO.id() doit être égale à id, sinon la requête utilisateur est mauvaise
+        AuthorDTO updatedAuthor = null;
+        if (author(id).id() == id) {
+            updatedAuthor = author;
+        }else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        return updatedAuthor;
     }
 
     public void deleteAuthor(Long id) {
