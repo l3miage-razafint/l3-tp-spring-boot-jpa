@@ -4,6 +4,7 @@ import fr.uga.l3miage.data.domain.Book;
 import fr.uga.l3miage.library.authors.AuthorDTO;
 import fr.uga.l3miage.library.service.BookService;
 import fr.uga.l3miage.library.service.EntityNotFoundException;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -58,7 +60,7 @@ public class BooksController {
 
     @PostMapping("/books")
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDTO newBook(Long authorId, BookDTO book) {
+    public BookDTO newBook(@RequestBody @Valid Long authorId, BookDTO book) {
         try {
             return booksMapper.entityToDTO(bookService.save(authorId, booksMapper.dtoToEntity(book)));
         } catch (EntityNotFoundException e) {
