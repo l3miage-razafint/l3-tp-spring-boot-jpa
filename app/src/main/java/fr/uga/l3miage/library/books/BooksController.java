@@ -69,7 +69,7 @@ public class BooksController {
 
     @PostMapping("/authors/{authorId}/books")
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDTO newBook(@PathVariable("authorId") Long authorId, @RequestBody BookDTO book) {
+    public BookDTO newBook(@PathVariable("authorId") Long authorId, @RequestBody @Valid BookDTO book) {
         try {
             return booksMapper.entityToDTO(bookService.save(authorId, booksMapper.dtoToEntity(book)));
         } catch (EntityNotFoundException e) {
@@ -79,7 +79,7 @@ public class BooksController {
 
     @PutMapping("/books/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookDTO updateBook(@PathVariable("id") Long authorId, @RequestBody BookDTO book) {
+    public BookDTO updateBook(@PathVariable("id") Long authorId, @RequestBody @Valid BookDTO book) {
         // attention BookDTO.id() doit être égale à id, sinon la requête utilisateur est
         // mauvaise
         if (authorId != book.id()) {

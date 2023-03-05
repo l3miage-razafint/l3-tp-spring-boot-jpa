@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 
 public record BookDTO(
-        @NotNull Long id,
+        Long id,
         String title,
         long isbn,
         String publisher,
