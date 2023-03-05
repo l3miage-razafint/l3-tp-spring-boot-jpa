@@ -1,15 +1,19 @@
 package fr.uga.l3miage.library.authors;
 
 import fr.uga.l3miage.data.domain.Author;
+import fr.uga.l3miage.data.domain.Book;
 import fr.uga.l3miage.library.books.BookDTO;
 import fr.uga.l3miage.library.books.BooksMapper;
 import fr.uga.l3miage.library.service.AuthorService;
+import fr.uga.l3miage.library.service.BookService;
+import fr.uga.l3miage.library.service.DeleteAuthorException;
 import fr.uga.l3miage.library.service.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,12 +33,15 @@ import java.util.Collections;
 public class AuthorsController {
 
     private final AuthorService authorService;
+    private final BookService bookService;
     private final AuthorMapper authorMapper;
     private final BooksMapper booksMapper;
 
     @Autowired
-    public AuthorsController(AuthorService authorService, AuthorMapper authorMapper, BooksMapper booksMapper) {
+    public AuthorsController(AuthorService authorService, BookService bookService, AuthorMapper authorMapper,
+            BooksMapper booksMapper) {
         this.authorService = authorService;
+        this.bookService = bookService;
         this.authorMapper = authorMapper;
         this.booksMapper = booksMapper;
     }
@@ -69,23 +76,35 @@ public class AuthorsController {
 
     @PutMapping("/authors/{id}")
     public AuthorDTO updateAuthor(@RequestBody AuthorDTO author, @PathVariable("id") Long id) {
-        // attention AuthorDTO.id() doit être égale à id, sinon la requête utilisateur est mauvaise
+        // attention AuthorDTO.id() doit être égale à id, sinon la requête utilisateur
+        // est mauvaise
         AuthorDTO updatedAuthor = null;
         if (author(id).id() == id) {
             updatedAuthor = author;
-        }else{
+        } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return updatedAuthor;
     }
 
-    public void deleteAuthor(Long id) {
-        // unimplemented... yet!
-
+    @DeleteMapping("/authors/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAuthor(@PathVariable("id") Long id) {
+        try {
+            authorService.delete(id);
+        } catch (DeleteAuthorException | EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "The author was not found");
+        }
     }
 
-    public Collection<BookDTO> books(Long authorId) {
-        return Collections.emptyList();
+    @GetMapping("authors/{id}/books")
+    public Collection<BookDTO> books(@PathVariable("id") Long authorId) {
+        try {
+            Collection<Book> books = bookService.getByAuthor(authorId);
+            return books.stream().map(booksMapper::entityToDTO).toList();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
 }
